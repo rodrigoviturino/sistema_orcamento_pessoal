@@ -6,6 +6,8 @@ class Despesa {
 		this.tipo = tipo
 		this.descricao = descricao
 		this.valor = valor
+
+		this.modalEl = document.querySelector("#validacaoFormDesepesas");
 	}
 
 	validarDados(){
@@ -42,6 +44,23 @@ class Db {
 
 		localStorage.setItem("id", id);
 	}
+
+	recuperaTodosRegistros(){
+		let id = localStorage.getItem("id");
+		let arrayDespesas = [];
+
+		for (let i = 1; i <= id; i++) {
+			let despesa = JSON.parse(localStorage.getItem(i));
+
+			if(despesa === null ){
+				continue;
+			}
+
+			arrayDespesas.push(despesa);
+		}
+
+		return arrayDespesas;
+	}
 }
 
 let db = new Db();
@@ -66,9 +85,32 @@ function cadastrarDespesa() {
 
 	if( despesa.validarDados() ) {
 		db.gravar(despesa)
-		$("#validacaoFormDespesas").modal("show")
-	} else {
+		let titulo = document.querySelector(".modal-title");
+		
+		let btn = document.querySelector(".modal-footer button");
+		titulo.innerHTML = "Registro inserido com sucesso";
+		
+		btn.innerHTML = "Voltar";
+		titulo.setAttribute("class", "text-success");
+		btn.setAttribute("class", "btn btn-success");
+		$("#validacaoFormDespesas").modal("show");
+	} 
+		else
+	{
+		let titulo = document.querySelector(".modal-title");
+		let btn = document.querySelector(".modal-footer button");
+		titulo.innerHTML = "Dados incompleto, verifique!";
+		btn.innerHTML = "Voltar e corrigir!";
+		titulo.setAttribute("class", "text-danger");
+		btn.setAttribute("class", "btn btn-danger");
 		$("#validacaoFormDespesas").modal("show")
 	}
 
+}
+
+function carregaListaDespesas(){
+	let despesas = [];
+
+	despesas = db.recuperaTodosRegistros();
+	console.log(despesas);
 }
