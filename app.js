@@ -52,6 +52,7 @@ class Db {
 		for (let i = 1; i <= id; i++) {
 			let despesa = JSON.parse(localStorage.getItem(i));
 
+			// Macete: Caso tenha algum indice apagado, ele ignora e só traz os que estão com valor
 			if(despesa === null ){
 				continue;
 			}
@@ -60,6 +61,53 @@ class Db {
 		}
 
 		return arrayDespesas;
+	}
+
+	pesquisar(despesa){
+
+		let despesasFiltradas = [];
+
+		despesasFiltradas = this.recuperaTodosRegistros();
+
+		// dia
+		// if(despesa.dia != ""){
+		// 	despesasFiltradas = despesasFiltradas.filter((item) => {
+		// 		item.dia == despesa.dia;
+		// 	})
+		// }
+
+		// mes
+		if(despesa.mes != ""){
+			despesasFiltradas = despesasFiltradas.filter((item) => {
+				return item.mes == despesa.mes;
+			})
+		}
+
+		// ano
+		if(despesa.ano != ""){
+			despesasFiltradas = despesasFiltradas.filter((item) => {
+				return item.ano == despesa.ano;
+			})
+		}
+
+		// // tipo
+		// if(despesa.tipo != ""){
+		// 	despesasFiltradas = despesasFiltradas.filter((item) => {
+		// 		item.tipo == despesa.tipo;
+		// 	})
+		// }
+
+		// // descricao
+		// if(despesa.descricao != ""){
+		// 	despesasFiltradas = despesasFiltradas.filter((item) => {
+		// 		item.descricao == despesa.descricao;
+		// 	})
+		// }
+
+
+		console.log(despesasFiltradas);
+
+		// console.log(despesa);
 	}
 }
 
@@ -94,6 +142,15 @@ function cadastrarDespesa() {
 		titulo.setAttribute("class", "text-success");
 		btn.setAttribute("class", "btn btn-success");
 		$("#validacaoFormDespesas").modal("show");
+
+		// Resetando os campos ao registrar
+		ano.value = "";
+		mes.value = "";
+		dia.value = "";
+		tipo.value = "";
+		descricao.value = "";
+		valor.value = "";
+		
 	} 
 		else
 	{
@@ -112,5 +169,51 @@ function carregaListaDespesas(){
 	let despesas = [];
 
 	despesas = db.recuperaTodosRegistros();
-	console.log(despesas);
+	// console.log(despesas);
+
+	let rowTable = document.querySelector("[data-table='consulta'] tbody");
+	// let tdTable = document.createElement("tr");
+
+	despesas.forEach((item) => {
+		let linha = rowTable.insertRow();
+
+		
+		// setando o TIPO
+		switch(item.tipo){
+			case '1': item.tipo = "Alimentação";
+			break
+			case '2': item.tipo = "Educação";
+			break
+			case '3': item.tipo = "Lazer";
+			break
+			case '4': item.tipo = "Saúde";
+			break
+			case '5': item.tipo = "Transporte";
+			break
+			
+		}
+		
+		linha.insertCell(0).innerHTML = `${item.dia}/${item.mes}/${item.ano}`;
+		linha.insertCell(1).innerHTML = `${item.tipo}`;
+		linha.insertCell(2).innerHTML = `${item.descricao}`;
+		linha.insertCell(3).innerHTML = `${item.valor}`;
+
+	})
+	// rowTable.appendChild(tdTable)
+
+	// console.log(rowTable);
+	// return rowTable;
+}
+
+function pesquisarDespesa(){
+	let ano = document.querySelector("#ano").value;
+	let mes = document.querySelector("#mes").value;
+	let dia = document.querySelector("#dia").value;
+	let tipo = document.querySelector("#tipo").value;
+	let descricao = document.querySelector("#descricao").value;
+	let valor = document.querySelector("#valor").value;
+
+	let despesa = new Despesa(ano, mes, dia , tipo, descricao, valor);
+
+	db.pesquisar(despesa);
 }
